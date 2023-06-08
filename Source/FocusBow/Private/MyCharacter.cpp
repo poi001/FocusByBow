@@ -106,5 +106,5 @@ void AMyCharacter::StopJump()
 //АјАн
 void Fire()
 {
-
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Fire"));
 }
