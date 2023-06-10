@@ -13,5 +13,10 @@ UCLASS()
 class FOCUSBOW_API AFocusBowGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	AFocusBowGameModeBase();
+
+	virtual void PostLogin(APlayerController* NewController) override;
 	
 };

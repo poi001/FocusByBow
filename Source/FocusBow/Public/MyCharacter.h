@@ -35,8 +35,8 @@ private:
 		UCameraComponent* Camera;					//Camera
 
 	//애님 인스턴스
-	//UPROPERTY()
-		//class PlayerAnimInstance* PlayerAnim;			//플레이어 애님 인스턴스
+	UPROPERTY()
+		class UMyAnimInstance* PlayerAnim;			//플레이어 애님 인스턴스
 
 	//이동
 	void MoveForward(float NewAxisValue);

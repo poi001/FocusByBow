@@ -2,6 +2,7 @@
 
 
 #include "MyCharacter.h"
+#include "MyAnimInstance.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -49,6 +50,11 @@ AMyCharacter::AMyCharacter()
 	//애니메이션 모드를 애니메이션 블루프린트로 설정
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	//기본 애님 인스턴스 설정
+	static ConstructorHelpers::FClassFinder<UAnimInstance> PLAYER_ANIM(TEXT("/Game/Player/Anim/Archer_AnimBP.Archer_AnimBP_C"));
+	if (PLAYER_ANIM.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(PLAYER_ANIM.Class);
+	}
 
 }
 
@@ -71,6 +77,18 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	//이동
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMyCharacter::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMyCharacter::MoveRight);
+	//시야
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AMyCharacter::LookUp);
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AMyCharacter::Turn);
+
+	//점프
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMyCharacter::StartJump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMyCharacter::StopJump);
+	//발사
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &AMyCharacter::Fire);
 }
 
 //이동
@@ -104,7 +122,7 @@ void AMyCharacter::StopJump()
 }
 
 //공격
-void Fire()
+void AMyCharacter::Fire()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Fire"));
 }
