@@ -25,7 +25,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	// 캐릭터 초기화 이후
+	virtual void PostInitializeComponents() override;
 
 private:
 	//카메라
@@ -33,10 +34,22 @@ private:
 		USpringArmComponent* SpringArm;				//CameraBoom
 	UPROPERTY(EditAnywhere, Category = "Camera")
 		UCameraComponent* Camera;					//Camera
-
 	//애님 인스턴스
 	UPROPERTY()
 		class UMyAnimInstance* PlayerAnim;			//플레이어 애님 인스턴스
+
+	//FVector CrosshairWorldLocation = FVector::ZeroVector;	//조준점
+	//FVector ImpactPoint = FVector::ZeroVector;				//라인트레이싱의 임팩트 포인트
+	//FVector ArrowSpawnLocation = FVector::ZeroVector;		//화살이 나가는 위치
+	//FRotator ArrowSpawnRotator = FRotator::ZeroRotator;		//화살이 나갈때 회전율
+	//bool bIsHitByTrace = false;								//라인 트레이싱의 히트 결과
+
+	//발사체
+	UPROPERTY()
+		TSubclassOf<class AActor> Arrow;					//화살 블루프린트 클래스
+
+	//공격
+	bool CanFire = true;
 
 	//이동
 	void MoveForward(float NewAxisValue);

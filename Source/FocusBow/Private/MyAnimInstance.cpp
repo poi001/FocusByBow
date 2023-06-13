@@ -3,6 +3,7 @@
 
 #include "MyAnimInstance.h"
 #include "MyCharacter.h"
+#include "Kismet/KismetMathLibrary.h"		//Delta(Rotator)
 
 UMyAnimInstance::UMyAnimInstance()
 {
@@ -40,6 +41,10 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			IsInAir = Pawn->GetMovementComponent()->IsFalling();	//점프
 
 			BaseAimRotation = Pawn->GetBaseAimRotation();			//시선
+
+			//YawOffset설정 ( 캐릭터가 가고 있는 방향과 카메라가 보고 있는 방향의 Yaw의 각도를 구해 YawOffset에 기입한다 )
+			YawOffset = UKismetMathLibrary::NormalizedDeltaRotator(FRotationMatrix::MakeFromX(Pawn->GetVelocity()).Rotator(),
+				BaseAimRotation).Yaw;
 		}
 	}
 }

@@ -37,9 +37,6 @@ private:
 	UFUNCTION()
 		void AnimNotify_ResetCombo();					//발사 노티파이
 
-	//델리게이트
-	FOnResetCombo OnResetCombo;		//공격 끝났을 때, 델리게이트
-
 public:
 	//스피드
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn", Meta = (AllowPrivateAccess = true))
@@ -57,6 +54,9 @@ public:
 		float YawOffset;			//캐릭터의 회전율에서 카메라의 회전율까지의 Yaw의 각도 ( 조준하면서 움직일 때 사용 )
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn", Meta = (AllowPrivateAccess = true))
 		FRotator BaseAimRotation;	//카메라가 보고있는 회전율
+
+	//델리게이트
+	FOnResetCombo OnResetCombo;		//공격 끝났을 때, 델리게이트
 
 	//몽타주 재생
 	void PlayFireMontage();			//발사 몽타주 재생

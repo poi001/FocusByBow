@@ -56,6 +56,9 @@ AMyCharacter::AMyCharacter()
 		GetMesh()->SetAnimInstanceClass(PLAYER_ANIM.Class);
 	}
 
+	//화살
+	static ConstructorHelpers::FClassFinder<AActor> ARROW(TEXT("/Game/Player/Blueprint/Arrow_BP.Arrow_BP_C"));
+	if (ARROW.Succeeded()) Arrow = ARROW.Class;
 }
 
 // Called when the game starts or when spawned
@@ -91,6 +94,18 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &AMyCharacter::Fire);
 }
 
+void AMyCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	//애님 인스턴스를 PlayerAnim변수에 집어 넣는다
+	PlayerAnim = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
+	if (PlayerAnim == nullptr) UE_LOG(LogTemp, Error, TEXT("PlayerAnimInstance is nullptr"));	//null체크
+
+	//공격 몽타주가 끝나면 호출되는 델리게이트
+	PlayerAnim->OnResetCombo.AddLambda([this]()->void { CanFire = true; });
+}
+
 //이동
 void AMyCharacter::MoveForward(float NewAxisValue)
 {
@@ -124,5 +139,32 @@ void AMyCharacter::StopJump()
 //공격
 void AMyCharacter::Fire()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Fire"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Fire"));
+
+	if (CanFire != true) return;	//공격할 수 없는 상황이면 이 함수가 발동되지 않는다.
+	CanFire = false;				//공격할 수 없는 상태로 변경
+
+	//투사체 발사 위치 소켓의 이름
+	FName SocktName(TEXT("BowEmitterSocket"));
+	//Trace Start Location
+	FVector CrosshairWorldLocation = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+	FVector CrosshairForwardVector = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector();
+	//Trace End Location
+	FVector ImpactPoint = CrosshairWorldLocation + (CrosshairForwardVector * FVector(15000.0f, 15000.0f, 15000.0f));
+
+	FHitResult HitResult;
+	FCollisionQueryParams IgnoreOwner = FCollisionQueryParams::DefaultQueryParam;
+	IgnoreOwner.AddIgnoredActor(GetOwner());
+	//LineTrace
+	bool bIsHitByTrace = GetWorld()->LineTraceSingleByChannel(HitResult, CrosshairWorldLocation, ImpactPoint, 
+		ECollisionChannel::ECC_Visibility, IgnoreOwner);
+	if (bIsHitByTrace) ImpactPoint = HitResult.ImpactPoint;
+	FVector ArrowSpawnLocation = GetMesh()->GetSocketLocation(SocktName);
+	FRotator ArrowSpawnRotator = FRotationMatrix::MakeFromX(ImpactPoint - ArrowSpawnLocation).Rotator();
+
+	//몽타주 재생
+	PlayerAnim->PlayFireMontage();
+
+	//화살 소환
+	
 }
