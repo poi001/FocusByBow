@@ -38,15 +38,15 @@ private:
 	UPROPERTY()
 		class UMyAnimInstance* PlayerAnim;			//플레이어 애님 인스턴스
 
-	//FVector CrosshairWorldLocation = FVector::ZeroVector;	//조준점
-	//FVector ImpactPoint = FVector::ZeroVector;				//라인트레이싱의 임팩트 포인트
-	//FVector ArrowSpawnLocation = FVector::ZeroVector;		//화살이 나가는 위치
-	//FRotator ArrowSpawnRotator = FRotator::ZeroRotator;		//화살이 나갈때 회전율
-	//bool bIsHitByTrace = false;								//라인 트레이싱의 히트 결과
-
 	//발사체
 	UPROPERTY()
-		TSubclassOf<class AActor> Arrow;					//화살 블루프린트 클래스
+		TSubclassOf<class AActor> Arrow;			//화살 블루프린트 클래스
+
+	//위젯
+	UPROPERTY()
+		TSubclassOf<class UUserWidget> CrosshairClass;	//조준점 HUD (Class)
+	UPROPERTY()
+		class UUserWidget* CrosshairWidget;				//조준점 HUD (Object)
 
 	//공격
 	bool CanFire = true;

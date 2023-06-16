@@ -3,6 +3,8 @@
 
 #include "MyCharacter.h"
 #include "MyAnimInstance.h"
+#include "Arrow.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -59,6 +61,10 @@ AMyCharacter::AMyCharacter()
 	//화살
 	static ConstructorHelpers::FClassFinder<AActor> ARROW(TEXT("/Game/Player/Blueprint/Arrow_BP.Arrow_BP_C"));
 	if (ARROW.Succeeded()) Arrow = ARROW.Class;
+
+	//조준점 HUD
+	static ConstructorHelpers::FClassFinder<UUserWidget> HUD(TEXT("/Game/Text/Crosshair_BP.Crosshair_BP_C"));
+	if (HUD.Succeeded()) CrosshairClass = HUD.Class;
 }
 
 // Called when the game starts or when spawned
@@ -66,6 +72,8 @@ void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CrosshairWidget = CreateWidget<UUserWidget>(GetWorld(), CrosshairClass);
+	CrosshairWidget->AddToViewport();
 }
 
 // Called every frame
@@ -139,8 +147,6 @@ void AMyCharacter::StopJump()
 //공격
 void AMyCharacter::Fire()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Fire"));
-
 	if (CanFire != true) return;	//공격할 수 없는 상황이면 이 함수가 발동되지 않는다.
 	CanFire = false;				//공격할 수 없는 상태로 변경
 
@@ -166,5 +172,6 @@ void AMyCharacter::Fire()
 	PlayerAnim->PlayFireMontage();
 
 	//화살 소환
-	
+	GetWorld()->SpawnActor<AActor>(Arrow, ArrowSpawnLocation, ArrowSpawnRotator);
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Fire"));
 }
