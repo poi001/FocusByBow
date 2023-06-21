@@ -56,5 +56,13 @@ void AMyCharacter::Fire()
 * `FVector CrosshairForwardVector` : 플레이어 카메라의 ForwardVector.
 * `FVector ImpactPoint` : 조준점(HUD) 기준으로 화살이 도착할 위치. 플레이어 카메라의 ForwardVector에 15000.0f라는 임의의 큰 수를 곱했다.
 * `FHitResult HitResult` : LineTrace에 맞은 Object의 정보를 담을 변수.
-* `FCollisionQueryParams IgnoreOwner` : LineTrace에 제외할 Collision을 담을 변수.
-* 
+* `FCollisionQueryParams IgnoreOwner` : LineTrace에 제외할 Collision을 담을 변수. 위에서는 플레이어 캐릭터로 설정함.
+* `bIsHitByTrace` : LineTrace에 맞았는 지 확인하는 bool변수.
+* `LineTraceSingleByChannel` : 설정한 위치에서 레이저를 쏘아 설정한 Collision채널이 맞았는지 확인하고 맞았다면 그 Object의 정보를 알아내는 RayCast. 인자는 순서대로 `HitResult변수`, `시작위치`, `끝날위치`, `판정할 Collision`, `제외할 Collision`이다
+* `if (bIsHitByTrace) ImpactPoint = HitResult.ImpactPoint` : LineTrace에 맞았다면 `ImpactPoint`를 레이저에 맞은 위치로 설정한다.
+* `FVector ArrowSpawnLocation` : 화살이 나가는 위치. 위에서는 활의 위치로 설정했다.
+* `FRotator ArrowSpawnRotator` : 화살이 소환될 때, 설정할 회전량. 위에서는 `ImpactPoint`벡터에서 `ArrowSpawnLocation` 벡터만큼 뺀 벡터의 회전량을 넣었다.
+
+위 코드를 작성하면 아래와 그림같이 조정이 된다.
+
+![화면 캡처 2023-06-21 090358](https://github.com/poi001/FocusByBow/assets/107660181/d2506139-c949-4280-9a9a-b7d68e8cd3ba)
