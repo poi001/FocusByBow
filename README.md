@@ -9,4 +9,52 @@
 ![ezgif com-video-to-gif](https://github.com/poi001/FocusByBow/assets/107660181/907e6a94-3291-4c94-9db4-c8d652ec4c97)
 
 조정 후
-## 
+## 기능 구현
+### 이 기능을 구현해야 하는 이유
+
+플레이어의 조준점의 목적지에 화살이 도착해야하기 때문이다. 이 기능을 사용하지 않으면 아래와 같이 화살이 원하는 곳에 도달하지 않는다. 이유는 캐릭터가 화면 정중앙보다 왼쪽에 위치하기 때문이다.
+
+![화면 캡처 2023-06-21 090152](https://github.com/poi001/FocusByBow/assets/107660181/a5bb0230-0323-483c-9027-6d0c3b41717a)
+
+### 코드
+
+```
+void AMyCharacter::Fire()
+{
+	if (CanFire != true) return;	    //공격할 수 없는 상황이면 이 함수가 발동되지 않는다.
+	CanFire = false;				          //공격할 수 없는 상태로 변경
+
+	//투사체 발사 위치 소켓의 이름
+	FName SocktName(TEXT("BowEmitterSocket"));
+
+	//Trace Start Location
+	FVector CrosshairWorldLocation = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+	FVector CrosshairForwardVector = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector();
+	//Trace End Location
+	FVector ImpactPoint = CrosshairWorldLocation + (CrosshairForwardVector * FVector(15000.0f, 15000.0f, 15000.0f));
+
+	FHitResult HitResult;
+	FCollisionQueryParams IgnoreOwner = FCollisionQueryParams::DefaultQueryParam;
+	IgnoreOwner.AddIgnoredActor(GetOwner());
+	//LineTrace
+	bool bIsHitByTrace = GetWorld()->LineTraceSingleByChannel(HitResult, CrosshairWorldLocation, ImpactPoint, 
+		ECollisionChannel::ECC_Visibility, IgnoreOwner);
+	if (bIsHitByTrace) ImpactPoint = HitResult.ImpactPoint;
+	FVector ArrowSpawnLocation = GetMesh()->GetSocketLocation(SocktName);
+	FRotator ArrowSpawnRotator = FRotationMatrix::MakeFromX(ImpactPoint - ArrowSpawnLocation).Rotator();
+
+	//몽타주 재생
+	PlayerAnim->PlayFireMontage();
+
+	//화살 소환
+	GetWorld()->SpawnActor<AActor>(Arrow, ArrowSpawnLocation, ArrowSpawnRotator);
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Fire"));
+}
+```
+### 설명
+* `FVector CrosshairWorldLocation` : 플레이어 카메라의 위치.
+* `FVector CrosshairForwardVector` : 플레이어 카메라의 ForwardVector.
+* `FVector ImpactPoint` : 조준점(HUD) 기준으로 화살이 도착할 위치. 플레이어 카메라의 ForwardVector에 15000.0f라는 임의의 큰 수를 곱했다.
+* `FHitResult HitResult` : LineTrace에 맞은 Object의 정보를 담을 변수.
+* `FCollisionQueryParams IgnoreOwner` : LineTrace에 제외할 Collision을 담을 변수.
+* 
